@@ -1,11 +1,20 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-main' :: IO ()
-main' = print . fst $ foldl (\(counter, prev) curr -> (if curr > prev then counter + 1 else counter, curr)) (0, maxBound) input
-  where input = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263] :: [Int]
+import Prelude hiding (readFile)
+import Z.IO.FileSystem.Base (readFile)
+import Z.IO (getArgs)
+
+import qualified Z.Data.Parser as P
+import Control.Applicative (many)
+import Data.Either (fromRight)
 
 main :: IO ()
-main = print $ sonar input where input = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263] :: [Int]
+main = do
+  args <- getArgs
+  src <- readFile (head $ tail args)
+  let input = fromRight [] $ P.parse' (many $ P.int <* P.char8 '\n') src
+  print $ sonar input
 
 sonar :: [Int] -> Int
 sonar [] = 0
